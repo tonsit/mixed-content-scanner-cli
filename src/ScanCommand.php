@@ -24,7 +24,8 @@ class ScanCommand extends Command
             ->addOption('ignore', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'urls whose path pass the regex will not be scanned')
             ->addOption('ignore-robots', null, InputOption::VALUE_NONE, 'Ignore robots.txt, robots meta tags and -headers.')
             ->addOption('verify-ssl', null, InputOption::VALUE_NONE, 'Verify the craweld urls have a valid certificate. If they do not an empty response will be the result of the crawl')
-            ->addOption('user-agent', null, InputOption::VALUE_REQUIRED, 'User agent string to use for requests');
+            ->addOption('user-agent', null, InputOption::VALUE_REQUIRED, 'User agent string to use for requests')
+            ->addOption('linked-css', null, InputOption::VALUE_NONE, 'Extract mixed content from linked css filles. This will increase scan time.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -45,6 +46,10 @@ class ScanCommand extends Command
 
         $ignoreRobots = $input->getOption('ignore-robots');
         $userAgent = $input->getOption('user-agent');
+
+        if ($input->getOption('linked-css')) {
+            $mixedContentLogger->withLinkedCss();
+        }
 
         (new MixedContentScanner($mixedContentLogger))
             ->configureCrawler(function (Crawler $crawler) use ($ignoreRobots, $userAgent) {
